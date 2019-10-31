@@ -25,7 +25,7 @@ orbs:
           default: mvn --batch-mode release:prepare
         mvn-release-perform-command:
           type: string
-          default: mvn --batch-mode release:perform
+          default: mvn --batch-mode release:perform -s .circleci/.maven.xml
         mvn-release-command:
           type: string
           default: echo "mvn-release-command not provided" 1>&2 && exit 1
