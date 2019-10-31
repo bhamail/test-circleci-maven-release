@@ -72,7 +72,7 @@ orbs:
                 echo "Starting new release..."
                 MVN_VERSION=$(mvn -q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive exec:exec)
                 echo "Preparing release from version ${MVN_VERSION}..."
-                cat ~/.ssh/known_hosts
+                echo "cat ~/.ssh/known_hosts"
                 << parameters.mvn-release-prepare-command >>
                 echo "Pushing new version and tag..."
                 git commit -am "released ${MVN_VERSION} [skip ci]"
