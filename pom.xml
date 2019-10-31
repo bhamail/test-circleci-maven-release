@@ -10,4 +10,10 @@
   <scm>
     <developerConnection>scm:git:git@github.com:bhamail/test-circleci-maven-release.git</developerConnection>
   </scm>
+  <distributionManagement>
+    <repository>
+      <id>rso</id>
+      <url>https://repository.sonatype.org/content/repositories/releases/</url>
+    </repository>
+  </distributionManagement>
 </project>
