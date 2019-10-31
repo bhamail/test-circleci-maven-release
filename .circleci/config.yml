@@ -23,7 +23,7 @@ orbs:
         mvn-release-prepare-command:
           type: string
           default: mvn --batch-mode release:prepare
-        mvn-release-preform-command:
+        mvn-release-perform-command:
           type: string
           default: mvn --batch-mode release:perform
         mvn-release-command:
