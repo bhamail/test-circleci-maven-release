@@ -1,0 +1,93 @@
+version: 2.1
+orbs:
+  my-inline-maven-release-orb:
+    version: 2.1
+    description: >
+      Run the maven-release-plugin in CircleCI. This Orb allows publishing of build
+      artifacts by invoking the maven-release-plugin. The source for this Orb is
+      available at: https://github.com/sonatype-nexus-community/circleci-maven-release-orb
+      Large chunks taken from this excellent Orb: https://github.com/bbottema-circleci/circleci-orbs
+      Thanks Benny!
+
+    executors:
+      maven-executor:
+        description: "CircleCI provided docker image with OpenJDK installed. see: https://circleci.com/docs/2.0/circleci-images/#openjdk"
+        docker:
+          - image: circleci/openjdk:8-jdk
+
+    deploy-defaults: &JOB_DEPLOY_DEFAULTS
+      parameters:
+        executor:
+          type: executor
+          default: maven-executor
+        mvn-release-command:
+          type: string
+          default: echo "mvn-release-command not provided" 1>&2 && exit 1
+      executor: <<parameters.executor>>
+
+    commands:
+      configure-gpg:
+        steps:
+          - run:
+              name: Configure GPG private key for signing project artifacts in OSS Sonatype
+              command: |
+                echo $SECRING_GPG_ASC_BASE64 | base64 --decode | gpg --batch --no-tty --import --yes
+
+      configure-git:
+        steps:
+          - run:
+              name: Configure GIT with host fingerprint, user info and SSH key for pushing
+              command: |
+                mkdir -p ~/.ssh
+                echo "Adding github.com as known host..."
+                echo $GITHUB_FINGERPRINT >> ~/.ssh/known_hosts
+                echo "Setting private SSH key for pushing new version to repo..."
+                echo $GITHUB_COMMIT_KEY | base64 --decode >> ~/.ssh/id_rsa
+                chmod 400 ~/.ssh/id_rsa # prevents "UNPROTECTED PRIVATE KEY FILE" error
+                git config user.name "$GITHUB_USERNAME"
+                git config user.email "$GITHUB_EMAIL"
+
+      maven-release:
+        parameters:
+          mvn-release-command:
+            type: string
+          internal_versioncommand:
+            type: string
+        steps:
+          - attach_workspace:
+              at: .
+          - restore_cache:
+              key: maven-release-orb-{{ checksum ".circleci/config.yml" }}
+          - configure-gpg
+          - configure-git
+          - run:
+              name: Release new version to Maven Central and push new project version to repo
+              command: |
+                echo "Starting new release..."
+                << parameters.internal_versioncommand >>
+                MVN_VERSION=$(mvn -q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive exec:exec)
+                echo "Releasing version ${MVN_VERSION}..."
+                << parameters.mvn-release-command >>
+                echo "Pushing new version and tag..."
+                git commit -am "released ${MVN_VERSION} [skip ci]"
+                git tag -a ${MVN_VERSION} -m "Release ${MVN_VERSION}"
+                ssh-agent sh -c 'ssh-add ~/.ssh/id_rsa; git push $CIRCLE_REPOSITORY_URL'
+                ssh-agent sh -c 'ssh-add ~/.ssh/id_rsa; git push origin --tags'
+                echo "Successfully released ${MVN_VERSION}"
+          - save_cache:
+              paths:
+                - ~/.m2
+              key: maven-release-orb-{{ checksum ".circleci/config.yml" }}
+
+    jobs:
+      run-maven-release:
+        <<: *JOB_DEPLOY_DEFAULTS
+        steps:
+          - maven-release:
+              internal_versioncommand: mvn build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.nextIncrementalVersion} versions:commit
+              mvn-release-command: << parameters.mvn-release-command >>
+
+workflows:
+  main:
+    jobs:
+      - my-inline-maven-release-orb/run-maven-release
