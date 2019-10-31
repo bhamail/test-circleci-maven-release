@@ -76,7 +76,8 @@ orbs:
                 echo cat release.properties
                 #ssh-agent sh -c 'ssh-add ~/.ssh/id_rsa; git push $CIRCLE_REPOSITORY_URL'
                 #ssh-agent sh -c 'ssh-add ~/.ssh/id_rsa; git push origin --tags'
-                echo "Successfully released ${MVN_VERSION}"
+                MVN_VERSION_RELEASED=$(mvn -q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive exec:exec)
+                echo "Successfully released ${MVN_VERSION_RELEASED}"
           - save_cache:
               paths:
                 - ~/.m2
