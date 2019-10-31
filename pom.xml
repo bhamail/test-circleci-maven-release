@@ -4,10 +4,11 @@
 
   <groupId>org.sonatype.nexus.platform.circleci</groupId>
   <artifactId>test-circleci-maven-release</artifactId>
-  <version>0.0.0-SNAPSHOT</version>
+  <version>0.0.0</version>
   <packaging>pom</packaging>
 
   <scm>
     <developerConnection>scm:git:git@github.com:bhamail/test-circleci-maven-release.git</developerConnection>
+    <tag>test-circleci-maven-release-0.0.0</tag>
   </scm>
 </project>
