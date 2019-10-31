@@ -1,5 +1,7 @@
 version: 2.1
 orbs:
+  orb-tools: circleci/orb-tools@8.27.4
+
   my-inline-maven-release-orb:
     version: 2.1
     description: >
@@ -90,7 +92,24 @@ orbs:
               mvn-release-prepare-command: << parameters.mvn-release-prepare-command >>
               mvn-release-perform-command: << parameters.mvn-release-perform-command >>
 
+
+jobs:
+  extract-job:
+    docker:
+      - image: circleci/ruby
+    steps:
+      - checkout
+      - orb-tools/extract-inline-orb:
+          orb: my-inline-maven-release-orb
+          source: .circleci/config.yml
+      - run:
+          command: |
+            cat .circleci/extract-inline-orb/orb.yml
+
+
+
 workflows:
   main:
     jobs:
       - my-inline-maven-release-orb/run-maven-release
+      - extract-job
