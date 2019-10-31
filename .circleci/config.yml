@@ -26,9 +26,6 @@ orbs:
         mvn-release-perform-command:
           type: string
           default: mvn --batch-mode release:perform -s .circleci/.maven.xml
-        mvn-release-command:
-          type: string
-          default: echo "mvn-release-command not provided" 1>&2 && exit 1
       executor: <<parameters.executor>>
 
     commands:
@@ -58,10 +55,6 @@ orbs:
           mvn-release-prepare-command:
             type: string
           mvn-release-perform-command:
-            type: string
-          mvn-release-command:
-            type: string
-          internal_versioncommand:
             type: string
         steps:
           - checkout
@@ -94,10 +87,8 @@ orbs:
         <<: *JOB_DEPLOY_DEFAULTS
         steps:
           - maven-release:
-              internal_versioncommand: mvn build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.nextIncrementalVersion} versions:commit
               mvn-release-prepare-command: << parameters.mvn-release-prepare-command >>
               mvn-release-perform-command: << parameters.mvn-release-perform-command >>
-              mvn-release-command: << parameters.mvn-release-command >>
 
 workflows:
   main:
