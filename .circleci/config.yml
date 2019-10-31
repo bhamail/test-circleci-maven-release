@@ -57,6 +57,8 @@ orbs:
         parameters:
           mvn-release-prepare-command:
             type: string
+          mvn-release-perform-command:
+            type: string
           mvn-release-command:
             type: string
           internal_versioncommand:
