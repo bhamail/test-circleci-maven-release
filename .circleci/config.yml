@@ -23,6 +23,9 @@ orbs:
         mvn-release-prepare-command:
           type: string
           default: mvn --batch-mode release:prepare
+        mvn-release-preform-command:
+          type: string
+          default: mvn --batch-mode release:perform
         mvn-release-command:
           type: string
           default: echo "mvn-release-command not provided" 1>&2 && exit 1
@@ -74,6 +77,7 @@ orbs:
                 echo "Preparing release from version ${MVN_VERSION}..."
                 << parameters.mvn-release-prepare-command >>
                 echo cat release.properties
+                << parameters.mvn-release-perform-command >>
                 #ssh-agent sh -c 'ssh-add ~/.ssh/id_rsa; git push $CIRCLE_REPOSITORY_URL'
                 #ssh-agent sh -c 'ssh-add ~/.ssh/id_rsa; git push origin --tags'
                 MVN_VERSION_RELEASED=$(mvn -q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive exec:exec)
@@ -90,6 +94,7 @@ orbs:
           - maven-release:
               internal_versioncommand: mvn build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.nextIncrementalVersion} versions:commit
               mvn-release-prepare-command: << parameters.mvn-release-prepare-command >>
+              mvn-release-perform-command: << parameters.mvn-release-perform-command >>
               mvn-release-command: << parameters.mvn-release-command >>
 
 workflows:
