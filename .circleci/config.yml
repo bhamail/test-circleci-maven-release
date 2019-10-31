@@ -80,8 +80,6 @@ orbs:
                 << parameters.mvn-release-prepare-command >>
                 cat release.properties
                 << parameters.mvn-release-perform-command >>
-                #ssh-agent sh -c 'ssh-add ~/.ssh/id_rsa; git push $CIRCLE_REPOSITORY_URL'
-                #ssh-agent sh -c 'ssh-add ~/.ssh/id_rsa; git push origin --tags'
                 MVN_VERSION_RELEASED=$(mvn -q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive exec:exec)
                 echo "Successfully released ${MVN_VERSION_RELEASED}"
           - save_cache:
