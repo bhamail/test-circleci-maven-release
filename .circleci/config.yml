@@ -81,8 +81,9 @@ orbs:
                 echo "Generated release.properties: ..."
                 cat release.properties
                 << parameters.mvn-release-perform-command >>
-                MVN_VERSION_RELEASED=$(mvn -q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive exec:exec)
-                echo "Successfully released ${MVN_VERSION_RELEASED}"
+                echo "Release completed"
+                MVN_VERSION_NEXT_DEV=$(mvn -q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive exec:exec)
+                echo "New development version ${MVN_VERSION_NEXT_DEV}"
           - save_cache:
               paths:
                 - ~/.m2
