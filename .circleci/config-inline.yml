@@ -178,7 +178,7 @@ workflows:
       - my-inline-maven-release-orb/run-maven-release:
           <<: *mvn-release-prepare-command-dryRun
           <<: *mvn-release-perform-command-dryRun
-      #- circleci-maven-release-orb/run-maven-release
+      #- circleci-maven-release-orb/run-maven-release:
       #    <<: *mvn-release-prepare-command-dryRun
       #    <<: *mvn-release-perform-command-dryRun
       - extract-job
