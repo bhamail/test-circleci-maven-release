@@ -49,8 +49,8 @@ orbs:
                 echo "Setting private SSH key for pushing new version to repo..."
                 echo $GITHUB_COMMIT_KEY | base64 --decode >> ~/.ssh/id_rsa
                 chmod 400 ~/.ssh/id_rsa # prevents "UNPROTECTED PRIVATE KEY FILE" error
-                git config user.name "$EMAIL_NAME"
-                git config user.email "$EMAIL_ADDRESS"
+                git config user.name "$GITHUB_USERNAME"
+                git config user.email "$GITHUB_EMAIL"
 
       maven-release:
         parameters:
@@ -141,12 +141,12 @@ jobs:
               FAILED_CHECK=true
             fi
             gitUser=$(git config user.name)
-            if [ ! "$gitUser" = "$EMAIL_NAME" ]; then
+            if [ ! "$gitUser" = "$GITHUB_USERNAME" ]; then
               echo "Missing git user name: $gitUser"
               FAILED_CHECK=true
             fi
             gitEmail=$(git config user.email)
-            if [ ! "$gitEmail" = "$EMAIL_ADDRESS" ]; then
+            if [ ! "$gitEmail" = "$GITHUB_EMAIL" ]; then
               echo "Missing git email address: gitEmail"
               FAILED_CHECK=true
             fi
