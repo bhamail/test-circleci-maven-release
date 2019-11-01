@@ -22,15 +22,12 @@ orbs:
         executor:
           type: executor
           default: maven-executor
-        dry-run:
-          type: boolean
-          default: false
         mvn-release-prepare-command:
           type: string
-          default: mvn --batch-mode -DdryRun=<< parameters.dry-run >> release:prepare
+          default: mvn --batch-mode release:prepare
         mvn-release-perform-command:
           type: string
-          default: mvn --batch-mode -DdryRun=<< parameters.dry-run >> release:perform -s .circleci/.maven.xml
+          default: mvn --batch-mode release:perform -s .circleci/.maven.xml
       executor: <<parameters.executor>>
 
     commands:
@@ -57,8 +54,6 @@ orbs:
 
       maven-release:
         parameters:
-          dry-run:
-            type: boolean
           mvn-release-prepare-command:
             type: string
           mvn-release-perform-command:
@@ -80,6 +75,8 @@ orbs:
                 << parameters.mvn-release-prepare-command >>
                 echo "Generated release.properties: ..."
                 cat release.properties
+                echo '<< parameters.mvn-release-perform-command >>'
+                exit 1
                 << parameters.mvn-release-perform-command >>
                 echo "Release completed"
                 MVN_VERSION_NEXT_DEV=$(mvn -q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive exec:exec)
@@ -94,59 +91,9 @@ orbs:
         <<: *JOB_DEPLOY_DEFAULTS
         steps:
           - maven-release:
-              dry-run: << parameters.dry-run >>
               mvn-release-prepare-command: << parameters.mvn-release-prepare-command >>
               mvn-release-perform-command: << parameters.mvn-release-perform-command >>
 
-          - run:
-              name: Check Dry Run results
-              command: |
-                FAILED_CHECK=false
-                echo "Checking gpg setup..."
-                gpgDir=/home/circleci/.gnupg/
-                if [ ! -f "$gpgDir" ]; then
-                  echo "Missing gpg dir: $gpgDir"
-                  FAILED_CHECK=true
-                fi
-                gpgPubKeyFile="$gpgDir/pubring.kbx"
-                if [ ! -f "$gpgPubKeyFile" ]; then
-                  echo "Missing gpg pub key file: $gpgPubKeyFile"
-                  FAILED_CHECK=true
-                fi
-
-                echo "Checking git setup..."
-                knownHosts=~/.ssh/known_hosts
-                if [ ! -f "$knownHosts" ]; then
-                  echo "Missing knownHosts file: $knownHosts"
-                  FAILED_CHECK=true
-                fi
-                idRsa=~/.ssh/id_rsa
-                if [ ! -f "$idRsa" ]; then
-                  echo "Missing knownHosts file: idRsa"
-                  FAILED_CHECK=true
-                fi
-                gitUser=$(git config user.name)
-                if [ ! "$gitUser" = "$EMAIL_NAME" ]; then
-                  echo "Missing git user name: $gitUser"
-                  FAILED_CHECK=true
-                fi
-                gitEmail=$(git config user.email)
-                if [ ! "$gitEmail" = "$EMAIL_ADDRESS" ]; then
-                  echo "Missing git email address: gitEmail"
-                  FAILED_CHECK=true
-                fi
-
-
-                releasePropsFile=release.properties
-                if [ ! -f "$releasePropsFile" ]; then
-                  echo "Missing release properties file: $releasePropsFile"
-                  FAILED_CHECK=true
-                fi
-
-                if [ "$FAILED_CHECK" = true ]; then
-                  echo "Exiting with failure: $FAILED_CHECK"
-                  exit 1
-                fi
 
 jobs:
   extract-job:
@@ -158,11 +105,79 @@ jobs:
           orb: my-inline-maven-release-orb
           source: .circleci/config-inline.yml
 
+  dry-run-job:
+    docker:
+      - image: circleci/openjdk:8-jdk
+    environment:
+      dryRun: true
+    steps:
+      #- checkout
+      #- my-inline-maven-release-orb/run-maven-release
+      #- circleci-maven-release-orb/run-maven-release
+      #- run-maven-release
+      - run:
+          name: Check Dry Run results
+          command: |
+            FAILED_CHECK=false
+            echo "Checking gpg setup..."
+            gpgDir=/home/circleci/.gnupg/
+            if [ ! -f "$gpgDir" ]; then
+              echo "Missing gpg dir: $gpgDir"
+              FAILED_CHECK=true
+            fi
+            gpgPubKeyFile="$gpgDir/pubring.kbx"
+            if [ ! -f "$gpgPubKeyFile" ]; then
+              echo "Missing gpg pub key file: $gpgPubKeyFile"
+              FAILED_CHECK=true
+            fi
+
+            echo "Checking git setup..."
+            knownHosts=~/.ssh/known_hosts
+            if [ ! -f "$knownHosts" ]; then
+              echo "Missing knownHosts file: $knownHosts"
+              FAILED_CHECK=true
+            fi
+            idRsa=~/.ssh/id_rsa
+            if [ ! -f "$idRsa" ]; then
+              echo "Missing knownHosts file: idRsa"
+              FAILED_CHECK=true
+            fi
+            gitUser=$(git config user.name)
+            if [ ! "$gitUser" = "$EMAIL_NAME" ]; then
+              echo "Missing git user name: $gitUser"
+              FAILED_CHECK=true
+            fi
+            gitEmail=$(git config user.email)
+            if [ ! "$gitEmail" = "$EMAIL_ADDRESS" ]; then
+              echo "Missing git email address: gitEmail"
+              FAILED_CHECK=true
+            fi
+
+
+            releasePropsFile=release.properties
+            if [ ! -f "$releasePropsFile" ]; then
+              echo "Missing release properties file: $releasePropsFile"
+              FAILED_CHECK=true
+            fi
+
+            if [ "$FAILED_CHECK" = true ]; then
+              echo "Exiting with failure: $FAILED_CHECK"
+              exit 1
+            fi
+
+
+mvn-release-prepare-command: &mvn-release-prepare-command-dryRun
+  mvn-release-prepare-command: mvn --batch-mode -DdryRun=true release:prepare
+
+mvn-release-perform-command: &mvn-release-perform-command-dryRun
+  mvn-release-perform-command: mvn --batch-mode -DdryRun=$dryRun release:perform -s .circleci/.maven.xml
 
 workflows:
   main:
     jobs:
       - my-inline-maven-release-orb/run-maven-release:
-          dry-run: true
-
+          <<: *mvn-release-prepare-command-dryRun
+          <<: *mvn-release-perform-command-dryRun
+      #- circleci-maven-release-orb/run-maven-release
       - extract-job
+      - dry-run-job
