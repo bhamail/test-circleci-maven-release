@@ -22,12 +22,15 @@ orbs:
         executor:
           type: executor
           default: maven-executor
+        dry-run:
+          type: boolean
+          default: false
         mvn-release-prepare-command:
           type: string
-          default: mvn --batch-mode release:prepare
+          default: mvn --batch-mode -DdryRun=<< parameters.dry-run >> release:prepare
         mvn-release-perform-command:
           type: string
-          default: mvn --batch-mode release:perform -s .circleci/.maven.xml
+          default: mvn --batch-mode -DdryRun=<< parameters.dry-run >> release:perform -s .circleci/.maven.xml
       executor: <<parameters.executor>>
 
     commands:
@@ -54,6 +57,8 @@ orbs:
 
       maven-release:
         parameters:
+          dry-run:
+            type: boolean
           mvn-release-prepare-command:
             type: string
           mvn-release-perform-command:
@@ -89,9 +94,59 @@ orbs:
         <<: *JOB_DEPLOY_DEFAULTS
         steps:
           - maven-release:
+              dry-run: << parameters.dry-run >>
               mvn-release-prepare-command: << parameters.mvn-release-prepare-command >>
               mvn-release-perform-command: << parameters.mvn-release-perform-command >>
 
+          - run:
+              name: Check Dry Run results
+              command: |
+                FAILED_CHECK=false
+                echo "Checking gpg setup..."
+                gpgDir=/home/circleci/.gnupg/
+                if [ ! -f "$gpgDir" ]; then
+                  echo "Missing gpg dir: $gpgDir"
+                  FAILED_CHECK=true
+                fi
+                gpgPubKeyFile="$gpgDir/pubring.kbx"
+                if [ ! -f "$gpgPubKeyFile" ]; then
+                  echo "Missing gpg pub key file: $gpgPubKeyFile"
+                  FAILED_CHECK=true
+                fi
+
+                echo "Checking git setup..."
+                knownHosts=~/.ssh/known_hosts
+                if [ ! -f "$knownHosts" ]; then
+                  echo "Missing knownHosts file: $knownHosts"
+                  FAILED_CHECK=true
+                fi
+                idRsa=~/.ssh/id_rsa
+                if [ ! -f "$idRsa" ]; then
+                  echo "Missing knownHosts file: idRsa"
+                  FAILED_CHECK=true
+                fi
+                gitUser=$(git config user.name)
+                if [ ! "$gitUser" = "$EMAIL_NAME" ]; then
+                  echo "Missing git user name: $gitUser"
+                  FAILED_CHECK=true
+                fi
+                gitEmail=$(git config user.email)
+                if [ ! "$gitEmail" = "$EMAIL_ADDRESS" ]; then
+                  echo "Missing git email address: gitEmail"
+                  FAILED_CHECK=true
+                fi
+
+
+                releasePropsFile=release.properties
+                if [ ! -f "$releasePropsFile" ]; then
+                  echo "Missing release properties file: $releasePropsFile"
+                  FAILED_CHECK=true
+                fi
+
+                if [ "$FAILED_CHECK" = true ]; then
+                  echo "Exiting with failure: $FAILED_CHECK"
+                  exit 1
+                fi
 
 jobs:
   extract-job:
@@ -107,5 +162,7 @@ jobs:
 workflows:
   main:
     jobs:
-#      - my-inline-maven-release-orb/run-maven-release
+      - my-inline-maven-release-orb/run-maven-release:
+          dry-run: true
+
       - extract-job
