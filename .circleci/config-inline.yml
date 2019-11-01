@@ -75,8 +75,6 @@ orbs:
                 << parameters.mvn-release-prepare-command >>
                 echo "Generated release.properties: ..."
                 cat release.properties
-                echo '<< parameters.mvn-release-perform-command >>'
-                exit 1
                 << parameters.mvn-release-perform-command >>
                 echo "Release completed"
                 MVN_VERSION_NEXT_DEV=$(mvn -q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive exec:exec)
