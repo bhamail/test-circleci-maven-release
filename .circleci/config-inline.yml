@@ -79,6 +79,10 @@ orbs:
                 echo "Release completed"
                 MVN_VERSION_NEXT_DEV=$(mvn -q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive exec:exec)
                 echo "New development version ${MVN_VERSION_NEXT_DEV}"
+          - persist_to_workspace:
+              root: .
+              paths:
+                - .
           - save_cache:
               paths:
                 - ~/.m2
@@ -103,18 +107,22 @@ jobs:
           orb: my-inline-maven-release-orb
           source: .circleci/config-inline.yml
 
-  dry-run-job:
+  check-results-job:
     docker:
       - image: circleci/openjdk:8-jdk
     environment:
       dryRun: true
     steps:
       #- checkout
+      - attach_workspace:
+          at: .
+      - restore_cache:
+          key: maven-github-release-{{ checksum ".circleci/config.yml" }}
       #- my-inline-maven-release-orb/run-maven-release
       #- circleci-maven-release-orb/run-maven-release
       #- run-maven-release
       - run:
-          name: Check Dry Run results
+          name: Check results
           command: |
             FAILED_CHECK=false
             echo "Checking gpg setup..."
@@ -182,4 +190,4 @@ workflows:
       #    <<: *mvn-release-prepare-command-dryRun
       #    <<: *mvn-release-perform-command-dryRun
       - extract-job
-      - dry-run-job
+      - check-results-job
