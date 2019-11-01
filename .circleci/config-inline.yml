@@ -170,7 +170,7 @@ mvn-release-prepare-command: &mvn-release-prepare-command-dryRun
   mvn-release-prepare-command: mvn --batch-mode -DdryRun=true release:prepare
 
 mvn-release-perform-command: &mvn-release-perform-command-dryRun
-  mvn-release-perform-command: mvn --batch-mode -DdryRun=$dryRun release:perform -s .circleci/.maven.xml
+  mvn-release-perform-command: mvn --batch-mode -DdryRun=true release:perform -s .circleci/.maven.xml
 
 workflows:
   main:
