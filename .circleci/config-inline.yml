@@ -147,7 +147,7 @@ orbs:
 
           # custom settings.xml file
           mvn-release-perform-command: &mvn-release-perform-command-dryRun-mysettings
-            mvn-release-perform-command: mvn --batch-mode -DdryRun=true release:perform -s my-settings.xml
+            mvn-release-perform-command: mvn --batch-mode release:perform -DdryRun=true -s my-settings.xml
 
           workflows:
             main:
@@ -169,9 +169,9 @@ orbs:
           mvn-read-version-command: &mvn-read-version-command-dryRun-mypom
             mvn-read-version-command: mvn -q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive exec:exec -f my-pom.xml
           mvn-release-prepare-command: &mvn-release-prepare-command-dryRun-mypom
-            mvn-release-prepare-command: mvn --batch-mode -DdryRun=true release:prepare -f my-pom.xml
+            mvn-release-prepare-command: mvn --batch-mode release:prepare -DdryRun=true -f my-pom.xml
           mvn-release-perform-command: &mvn-release-perform-command-dryRun-mypom
-            mvn-release-perform-command: mvn --batch-mode -DdryRun=true release:perform -f my-pom.xml
+            mvn-release-perform-command: mvn --batch-mode release:perform -DdryRun=true -s .circleci/.maven.xml -f my-pom.xml
 
           workflows:
             main:
@@ -350,11 +350,11 @@ jobs:
 
 mvn-release-prepare-command: &mvn-release-prepare-command-dryRun
   # add -DdryRun=true
-  mvn-release-prepare-command: mvn --batch-mode -DdryRun=true release:prepare
+  mvn-release-prepare-command: mvn --batch-mode release:prepare -DdryRun=true
 
 mvn-release-perform-command: &mvn-release-perform-command-dryRun
   # add -DdryRun=true
-  mvn-release-perform-command: mvn --batch-mode -DdryRun=true release:perform -s .circleci/.maven.xml
+  mvn-release-perform-command: mvn --batch-mode release:perform -DdryRun=true -s .circleci/.maven.xml
 
 workflows:
   main:
