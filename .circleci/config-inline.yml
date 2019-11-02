@@ -292,8 +292,7 @@ jobs:
           source: .circleci/config-inline.yml
 
   check-results-job:
-    docker:
-      - image: circleci/openjdk:8-jdk
+    executor: my-inline-maven-release-orb/maven-executor
     steps:
       - checkout
       - attach_workspace:
