@@ -108,16 +108,17 @@ orbs:
 
     examples:
       maven-release-example:
-        description: |
-          The configuration below will use the maven-release-plugin to perform a maven release.
+        description: The configuration below will use the maven-release-plugin to perform a maven release.
         usage:
           version: 2.1
+
           orbs:
-            circleci-maven-release-orb: sonatype-nexus-community/circleci-maven-release-orb@dev:alpha
+            circleci-maven-release-orb: sonatype-nexus-community/circleci-maven-release-orb@x.y.z
+
           workflows:
             main:
               jobs:
-                - circleci-maven-release-orb/run-maven-release:
+                - circleci-maven-release-orb/run-maven-release
 
       maven-release-dry-run-example:
         description: |
@@ -125,12 +126,14 @@ orbs:
           No changes will be committed to source control.
         usage:
           version: 2.1
+
           orbs:
-            circleci-maven-release-orb: sonatype-nexus-community/circleci-maven-release-orb@dev:alpha
+            circleci-maven-release-orb: sonatype-nexus-community/circleci-maven-release-orb@x.y.z
+
           workflows:
             main:
               jobs:
-                - circleci-maven-release-orb/run-maven-release:
+                - circleci-maven-release-orb/run-maven-release
 
       maven-release-dry-run-custom-maven-settings-example:
         description: |
@@ -138,8 +141,9 @@ orbs:
           by redefining the `mvn-release-perform-command` anchor.
         usage:
           version: 2.1
+
           orbs:
-            circleci-maven-release-orb: sonatype-nexus-community/circleci-maven-release-orb@dev:alpha
+            circleci-maven-release-orb: sonatype-nexus-community/circleci-maven-release-orb@x.y.z
 
           mvn-release-perform-command: &mvn-release-perform-command-dryRun-mysettings
             mvn-release-perform-command: mvn --batch-mode -DdryRun=true release:perform -s my-settings.xml
