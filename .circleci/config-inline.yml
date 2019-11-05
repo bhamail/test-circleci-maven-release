@@ -4,18 +4,18 @@ orbs:
 
   my-inline-maven-release-orb:
     version: 2.1
-    description: >
+    description: |
       Run the maven-release-plugin in CircleCI. This Orb allows publishing of build
       artifacts by invoking the maven-release-plugin. See: https://maven.apache.org/maven-release/maven-release-plugin/
       The source for this Orb is available at: https://github.com/sonatype-nexus-community/circleci-maven-release-orb
       Large chunks taken from this excellent Orb: https://github.com/bbottema-circleci/circleci-orbs
       Thanks Benny!
 
-      Since may of the ideas in this Orb are taken from Benny's Orb, you may want to see
+      Since many of the ideas in this Orb are taken from Benny's Orb, you may want to see
       http://www.bennybottema.com/2019/02/20/automating-your-github-library-releases-to-maven-central/ to find out
       more about the steps performed and which environment variables are expected in the Context.
 
-      The following environmental variables are expected by this Orb, which are unique for each project:
+      The following environment variables are expected by this Orb, which are unique for each project:
         - GITHUB_COMMIT_KEY: base64 private SSH key, matching the public key (with write access) in your Github project
         - GITHUB_USERNAME: Your Github username
         - GITHUB_EMAIL: Your Github email
@@ -25,7 +25,7 @@ orbs:
         - SERVER_OSSRH_PASSWORD: OSS Sonatype username
         - SERVER_OSSRH_USERNAME: OSS Sonatype password
 
-      The pom.xml at the root of you project also requires a few tags:
+      The pom.xml at the root of your project also requires a few tags:
 
       The pom must define a 'developerConnection' tag in the 'scm' section.
       The following 'distributionManagement', 'build' and 'profile' definitions are also required.
@@ -106,6 +106,22 @@ orbs:
           </server>
         </servers>
 
+      Note: In the examples below, the yml has already substituted the "anchor" values. Please see the original
+      yml source file [examples](https://github.com/sonatype-nexus-community/circleci-maven-release-orb/blob/master/src/orb.yml#L120)
+      section to view the intended formatting for the examples. (Any help on how to fix this is welcome!)
+      To illustration the issue, the `maven-release-dry-run-example` below should show:
+
+      ...
+      mvn-release-perform-command: &mvn-release-perform-command-dryRun
+        mvn-release-perform-command: mvn --batch-mode release:perform -DdryRun=true -s .circleci/.maven.xml
+
+      workflows:
+        main:
+          jobs:
+            - circleci-maven-release-orb/run-maven-release:
+                <<: *mvn-release-perform-command-dryRun
+
+
     examples:
       maven-release-example:
         description: The configuration below will use the maven-release-plugin to perform a maven release.
@@ -123,6 +139,8 @@ orbs:
       maven-release-dry-run-example:
         description: |
           The configuration below will use the maven-release-plugin to perform a "dry run" of a maven release.
+          Notice when redefining `mvn-release-perform-command`, you must still specify which maven settings file to use.
+          The example below still specifies the default expected by the Orb (`.circleci/.maven.xml`).
           No changes will be committed to source control.
         usage:
           version: 2.1
@@ -130,15 +148,20 @@ orbs:
           orbs:
             circleci-maven-release-orb: sonatype-nexus-community/circleci-maven-release-orb@x.y.z
 
+          mvn-release-perform-command: &mvn-release-perform-command-dryRun
+            mvn-release-perform-command: mvn --batch-mode release:perform -DdryRun=true -s .circleci/.maven.xml
+
           workflows:
             main:
               jobs:
-                - circleci-maven-release-orb/run-maven-release
+                - circleci-maven-release-orb/run-maven-release:
+                    <<: *mvn-release-perform-command-dryRun
 
       maven-release-dry-run-custom-maven-settings-example:
         description: |
           The configuration below will perform a "dry run" using a maven settings file in a different location
           by redefining the `mvn-release-perform-command` anchor.
+          No changes will be committed to source control.
         usage:
           version: 2.1
 
@@ -157,8 +180,10 @@ orbs:
 
       maven-release-dry-run-custom-pom-and-settings-example:
         description: |
-          The configuration below will perform a "dry run" using a maven settings file in a different location
-          by redefining the `mvn-release-perform-command` anchor.
+          The configuration below will perform a "dry run" using a maven custommized pom file
+          by redefining the `mvn-read-version-command`, `mvn-release-prepare-command`, and `mvn-release-perform-command`
+          anchors.
+          No changes will be committed to source control.
         usage:
           version: 2.1
 
