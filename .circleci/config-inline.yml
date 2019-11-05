@@ -217,6 +217,14 @@ orbs:
         executor:
           type: executor
           default: maven-executor
+        ssh-fingerprints:
+          default: ''
+          description: >
+            Fingerprints for SSH deploy key (add the public key as a read/write key on
+            GitHub; add the private key in CircleCI via SSH Permissions, with
+            github.com as Hostname). Used to push a git tag back to the project's
+            repository.
+          type: string
         mvn-read-version-command:
           type: string
           default: mvn -q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive exec:exec
@@ -252,6 +260,8 @@ orbs:
 
       maven-release:
         parameters:
+          ssh-fingerprints:
+            type: string
           mvn-read-version-command:
             type: string
           mvn-release-prepare-command:
@@ -259,6 +269,9 @@ orbs:
           mvn-release-perform-command:
             type: string
         steps:
+          - add_ssh_keys:
+              fingerprints:
+                - <<parameters.ssh-fingerprints>>
           - checkout
           - attach_workspace:
               at: .
@@ -301,6 +314,7 @@ orbs:
         <<: *JOB_DEPLOY_DEFAULTS
         steps:
           - maven-release:
+              ssh-fingerprints: << parameters.ssh-fingerprints >>
               mvn-read-version-command: << parameters.mvn-read-version-command >>
               mvn-release-prepare-command: << parameters.mvn-release-prepare-command >>
               mvn-release-perform-command: << parameters.mvn-release-perform-command >>
