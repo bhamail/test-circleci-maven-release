@@ -16,6 +16,7 @@
       <groupId>org.sonatype.nexus.platform.circleci</groupId>
       <artifactId>test-circleci-maven-release-module1</artifactId>
       <version>0.0.3-SNAPSHOT</version>
+      <type>pom</type>
     </dependency>
   </dependencies>
 </project>
