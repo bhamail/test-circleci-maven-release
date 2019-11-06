@@ -19,4 +19,8 @@ workflows:
 
   live:
     jobs:
-      - circleci-maven-release-orb/run-maven-release
+      - circleci-maven-release-orb/run-maven-release:
+          ssh-fingerprints: "16:27:fe:e2:82:31:2c:8f:af:8a:06:45:13:3a:27:d5"
+          filters:
+            branches:
+              only: master
