@@ -7,6 +7,11 @@
   <version>0.0.2-SNAPSHOT</version>
   <packaging>pom</packaging>
 
+  <modules>
+    <module>module1</module>
+    <module>module2</module>
+  </modules>
+
   <scm>
     <developerConnection>scm:git:git@github.com:bhamail/test-circleci-maven-release.git</developerConnection>
     <tag>HEAD</tag>
