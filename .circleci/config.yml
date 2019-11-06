@@ -11,17 +11,14 @@ mvn-release-perform-command: &mvn-release-perform-command-dryRun
   mvn-release-perform-command: mvn --batch-mode release:perform -DdryRun=true -s .circleci/.maven.xml
 
 workflows:
-  main:
+  dry-run:
     jobs:
       - circleci-maven-release-orb/run-maven-release:
           <<: *mvn-release-prepare-command-dryRun
           <<: *mvn-release-perform-command-dryRun
           context: dan-test
-          filters:
-            branches:
-              only: master
 
-  live:
+  run-release:
     jobs:
       - circleci-maven-release-orb/run-maven-release:
           ssh-fingerprints: "16:27:fe:e2:82:31:2c:8f:af:8a:06:45:13:3a:27:d5"
