@@ -1,4 +1,7 @@
 # test-circleci-maven-release
+
+[![CircleCI](https://circleci.com/gh/bhamail/test-circleci-maven-release.svg?style=svg)](https://circleci.com/gh/bhamail/test-circleci-maven-release)
+
 A toy project for use in testing the process of releasing a maven project from CircleCI.
 
 ## Useful Hoops
