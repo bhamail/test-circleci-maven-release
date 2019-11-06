@@ -16,6 +16,10 @@ workflows:
       - circleci-maven-release-orb/run-maven-release:
           <<: *mvn-release-prepare-command-dryRun
           <<: *mvn-release-perform-command-dryRun
+          context: dan-test
+          filters:
+            branches:
+              only: master
 
   live:
     jobs:
