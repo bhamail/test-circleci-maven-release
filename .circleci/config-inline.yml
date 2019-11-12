@@ -104,6 +104,12 @@ orbs:
           </server>
         </servers>
 
+      In order to allow the Orb to commit version increments and tag changes back to the source bank (during a non-dryRun),
+      you need to provide a GitHub deploy key with "Write Acesss". You configure the build to use this key via the
+      'ssh-fingerprints' parameter.
+      See: [Adding an SSH Key to CircleCI](https://circleci.com/docs/2.0/add-ssh-key/?gclid=EAIaIQobChMIuN79poLb5QIVzuDICh2QSgh6EAAYASAAEgJIbfD_BwE)
+      Watchout for the PEM key format issue described in that article.
+
     examples:
       maven-release-example:
         description: The configuration below will use the maven-release-plugin to perform a maven release.
@@ -116,7 +122,8 @@ orbs:
           workflows:
             main:
               jobs:
-                - circleci-maven-release-orb/run-maven-release
+                - circleci-maven-release-orb/run-maven-release:
+                    ssh-fingerprints: "my:ss:hf:in:ge:rp:ri:nt..."
 
       maven-release-dry-run-example:
         description: |
@@ -134,6 +141,7 @@ orbs:
             main:
               jobs:
                 - circleci-maven-release-orb/run-maven-release:
+                    ssh-fingerprints: "my:ss:hf:in:ge:rp:ri:nt..."
                     mvn-release-perform-command: mvn --batch-mode release:perform -DdryRun=true -s .circleci/.maven.xml
 
       maven-release-dry-run-custom-maven-settings-example:
@@ -151,6 +159,7 @@ orbs:
             main:
               jobs:
                 - circleci-maven-release-orb/run-maven-release:
+                    ssh-fingerprints: "my:ss:hf:in:ge:rp:ri:nt..."
                     mvn-release-perform-command: mvn --batch-mode release:perform -DdryRun=true -s my-settings.xml
 
       maven-release-dry-run-custom-pom-and-settings-example:
@@ -169,6 +178,7 @@ orbs:
             main:
               jobs:
                 - circleci-maven-release-orb/run-maven-release:
+                    ssh-fingerprints: "my:ss:hf:in:ge:rp:ri:nt..."
                     mvn-read-version-command: mvn -q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive exec:exec -f my-pom.xml
                     mvn-release-prepare-command: mvn --batch-mode release:prepare -DscmCommentPrefix="[skip ci] [maven-release-plugin] " -DdryRun=true -f my-pom.xml
                     mvn-release-perform-command: mvn --batch-mode release:perform -DdryRun=true -s .circleci/.maven.xml -f my-pom.xml
