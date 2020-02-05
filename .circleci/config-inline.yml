@@ -7,7 +7,6 @@ orbs:
     description: |
       Run the maven-release-plugin in CircleCI. This Orb allows publishing of build
       artifacts by invoking the maven-release-plugin. See: https://maven.apache.org/maven-release/maven-release-plugin/
-      The source for this Orb is available at: https://github.com/sonatype-nexus-community/circleci-maven-release-orb
       Large chunks taken from this excellent Orb: https://github.com/bbottema-circleci/circleci-orbs
       Thanks Benny!
 
@@ -109,6 +108,9 @@ orbs:
       'ssh-fingerprints' parameter.
       See: [Adding an SSH Key to CircleCI](https://circleci.com/docs/2.0/add-ssh-key/?gclid=EAIaIQobChMIuN79poLb5QIVzuDICh2QSgh6EAAYASAAEgJIbfD_BwE)
       Watchout for the PEM key format issue described in that article.
+
+    display:
+      source_url: "https://github.com/sonatype-nexus-community/circleci-maven-release-orb"
 
     examples:
       maven-release-example:
