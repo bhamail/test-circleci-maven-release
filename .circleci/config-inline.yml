@@ -1,3 +1,4 @@
+# NOTE: This file is now obsolete - no longer jumping through inline-orb hoops.
 version: 2.1
 orbs:
   orb-tools: circleci/orb-tools@8.27.4
