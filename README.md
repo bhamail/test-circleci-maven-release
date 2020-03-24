@@ -1,6 +1,7 @@
 # test-circleci-maven-release
 
-[![CircleCI](https://circleci.com/gh/bhamail/test-circleci-maven-release.svg?style=svg)](https://circleci.com/gh/bhamail/test-circleci-maven-release)
+[![CircleCI](https://circleci.com/gh/bhamail/test-circleci-maven-release.svg?style=shield)](https://circleci.com/gh/bhamail/test-circleci-maven-release)
+[![Maven Central](https://img.shields.io/maven-central/v/org.sonatype.nexus.platform.circleci/test-circleci-maven-release.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22org.sonatype.nexus.platform.circleci%22%20AND%20a:%22test-circleci-maven-release%22)
 
 A toy project for use in testing the process of releasing a maven project from CircleCI.
 
