@@ -3,12 +3,12 @@ orbs:
   circleci-maven-release-orb: sonatype-nexus-community/circleci-maven-release-orb@dev:alpha
 
 mvn-release-prepare-command: &mvn-release-prepare-command-dryRun
-  # add -DdryRun=true
-  mvn-release-prepare-command: mvn --batch-mode release:prepare -DdryRun=true
+  # adds -DdryRun=true
+  mvn-release-prepare-command: mvn --batch-mode release:prepare -DscmCommentPrefix="[skip ci] [maven-release-plugin] " -DdryRun=true
 
 mvn-release-perform-command: &mvn-release-perform-command-dryRun
-  # add -DdryRun=true
-  mvn-release-perform-command: mvn --batch-mode release:perform -DdryRun=true -s .circleci/.maven.xml
+  # adds -DdryRun=true
+  mvn-release-perform-command: mvn --batch-mode release:perform -s .circleci/.maven.xml -DdryRun=true
 
 workflows:
   dry-run:
