@@ -30,4 +30,4 @@ workflows:
             - approve-release
           filters:
             branches:
-              only: master
+              only: main

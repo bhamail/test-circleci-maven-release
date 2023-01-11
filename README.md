@@ -13,7 +13,7 @@ Obsolete - Some nasty, but useful hoops through which one can jump
 
 #### Obsolete - Extract inline orb
 The command below will print the inline-orb by itself, which allows you to copy/paste that stand-alone orb elsewhere 
-(e.g. to [src/orb.yml](https://github.com/sonatype-nexus-community/circleci-maven-release-orb/blob/master/src/orb.yml)).
+(e.g. to [src/orb.yml](https://github.com/sonatype-nexus-community/circleci-maven-release-orb/blob/main/src/orb.yml)).
 
     circleci config process .circleci/config-inline.yml > .circleci/local-config.yml  \
         &&  circleci local execute --config .circleci/local-config.yml --job 'extract-job' \
